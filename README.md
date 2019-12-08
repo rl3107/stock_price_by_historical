@@ -129,15 +129,15 @@ template.plot_all(lag = 2000, ran = 1)
 ```
 
 
-![png](using_template_picutres/output_15_0.png)
+![png](using_template_pictures/output_15_0.png)
 
 
 
-![png](using_template_picutres/output_15_1.png)
+![png](using_template_pictures/output_15_1.png)
 
 
 
-![png](using_template_picutres/output_15_2.png)
+![png](using_template_pictures/output_15_2.png)
 
 
 
@@ -253,11 +253,11 @@ template.score_plot_return()
 ```
 
 
-![png](using_template_picutres/output_24_0.png)
+![png](using_template_pictures/output_24_0.png)
 
 
 
-![png](using_template_picutres/output_24_1.png)
+![png](using_template_pictures/output_24_1.png)
 
 
 Quick Version
@@ -295,15 +295,15 @@ template.plot_all()
     
 
 
-![png](using_template_picutres/output_27_1.png)
+![png](using_template_pictures/output_27_1.png)
 
 
 
-![png](using_template_picutres/output_27_2.png)
+![png](using_template_pictures/output_27_2.png)
 
 
 
-![png](using_template_picutres/output_27_3.png)
+![png](using_template_pictures/output_27_3.png)
 
 
 
