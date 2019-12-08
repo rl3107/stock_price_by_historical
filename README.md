@@ -1,5 +1,18 @@
 # stock_price_by_historical
 A python pipeline of using models from sklearn and tensorflow to predict (classification or regression) stock price by its historical price.
+
+Using machine learning and deep learning models to predict stock price is a hot topic. There are many papers and blogs show cases using historical stock price as features to predict future stock price, and they include prediction plots (predicted price vs. real price) to demonstrate the model is useful. However, even a last value model (use yesterday's close price as the prediction of today's close price) is powerful to generate a plausible plot, which is very close to the trend of real price. According to efficient market hypothesis, all the public infomation, e.g., historical stock price, should have been fully digested by the market and thus is useless to predict the future.
+
+I built this pipeline to control the process of acquring stock price by yfinance api, data pre-processing, modeling and evaluating. You can change the parameters of the pipeline to build model and test its performance. The parameters include ticker, start or end time, model_type (scikit- learn or tensorflow), model_name (e.g. knn, rf, rnn), lag (how many days to look back) and many others. For details you may use .para_explain().
+
+I defined the prediction task type as classification or regression. Classification is to predict whether the stock would go up or down; regression is to predict the exact stock price. The evaluation metric for classification is AUC, and for regression is r2 compared with r2_base (r2 of the last value model, usually 0.92- 0.97). A naive trading strategy, if the model predicts tomorrow as up, then long today's close and short tomorrow's close, is used to test the return of the model. Based on the experiments I did, no model are practically useful in predicting.
+
+This is version 1.0 and I may more functions or make it more generalized in the future. Now you can use the pre-defined parameters to handle the pipeline, and you can assign the models you are interested in to customize (e.g. template.model = sklearn.svm.SVC()), or you can use it to download and pre-process data, and get them by data_x, data_y = template.x_test_model, template.y_test_model.
+
+Have fun!
+
+Here's the contents in the stock_model_using_template.ipynb:
+
 Import the package.
 
 
@@ -41,19 +54,19 @@ template.para()
 template.para_explain()
 ```
 
-    ticker: ticker of the asset, default SPY
-    start: start time of data, default 1990-01-01
-    end: end time of data, default 2019-11-15
-    task_type: task type, either classification or regression, default classification
-    target: target feature of modeling, default return
-    model_type: whether model in sklearn or tensorflow, default sk, can change to tf
-    model_name: abbreviated name of the model, default rf
-    test_size: split proportion of the test set, default 0.3
-    lag: time lag to consider for the model, default 50
-    ta: whether to add technical tickers for the data, default False
-    normalization: whether apply normalization for the data, default True
-    drift_include: whether to include drift for r2_base score , default False
-    commission: commission for testing trading strategy return, default 0.01 in percentage
+    ticker: ticker of the asset, default SPY. string
+    start: start time of data, default 1990-01-01. string
+    end: end time of data, default 2019-11-15. string
+    task_type: task type, either classification or regression, default classification. string
+    target: target feature of modeling, if model_name = "tf" use "price", default return. string
+    model_type: whether model in sklearn or tensorflow, default sk, can change to tf. string
+    model_name: abbreviated name of the model, default rf, for sk, can choose lasso, ridge, knn, rf(random forest), adb(adaboosting), for tf, can choose mlp, rnn, cnn. string
+    test_size: split proportion of the test set, default 0.05. float
+    lag: time lag to consider for the model, default 50. int
+    ta: whether to add technical tickers for the data, RSI, MACD, ADX, Bollinger Band, default False. bool
+    normalization: whether apply normalization for the data, default True. bool
+    drift_include: whether to include drift for r2_base score , default False. bool
+    commission: commission for testing trading strategy return, default 0.00 in percentage. float
     
 
 
@@ -61,8 +74,8 @@ template.para_explain()
 template.para_explain(['ticker','lag'])
 ```
 
-    ticker: ticker of the asset, default SPY
-    lag: time lag to consider for the model, default 50
+    ticker: ticker of the asset, default SPY. string
+    lag: time lag to consider for the model, default 50. int
     
 
 Change parameters.
@@ -187,7 +200,7 @@ Build the model.
 
 
 ```python
-template.model_build_sk(model_para='')
+template.model_build_sk(model_para='n_jobs = -1')
 ```
 
 Train the model.
@@ -231,7 +244,6 @@ template.score_analyze()
       <th></th>
       <th>ticker</th>
       <th>model_name</th>
-      <th>score</th>
       <th>accuracy</th>
       <th>r2</th>
       <th>r2_base</th>
@@ -245,13 +257,12 @@ template.score_analyze()
       <td>0</td>
       <td>aapl</td>
       <td>rf</td>
-      <td>-0.105788</td>
       <td>0.550532</td>
-      <td>-6.60203</td>
+      <td>-6.832646</td>
       <td>0.979166</td>
       <td>0.413617</td>
-      <td>0.264583</td>
-      <td>0.16989</td>
+      <td>0.416405</td>
+      <td>0.261999</td>
     </tr>
   </tbody>
 </table>
@@ -281,7 +292,7 @@ Quick Version
 ```python
 import stock_model
 template = stock_model.stock_model()
-template.para_change({'ticker':'dia','task_type':'classification','target':'price','model_name':'ridge','model_type':'sk'})
+template.para_change({'ticker':'dia','task_type':'classification','target':'return','model_name':'rnn','model_type':'tf'})
 template.para()
 ```
 
@@ -289,9 +300,9 @@ template.para()
     start: 1990-01-01
     end: 2019-11-15
     task_type: classification
-    target: price
-    model_type: sk
-    model_name: ridge
+    target: return
+    model_type: tf
+    model_name: rnn
     test_size: 0.05
     lag: 50
     ta: False
@@ -323,43 +334,81 @@ template.plot_all()
 
 
 ```python
-template.model_build_sk(model_para='')
-template.model_train_sk()
+template.model_build_tf(number_layer = 2, width = 50)
+template.model_train_tf(epoch = 10, batch_size = 64)
 template.score_analyze()
 ```
 
-
-    ---------------------------------------------------------------------------
-
-    UnboundLocalError                         Traceback (most recent call last)
-
-    <ipython-input-18-6b1eb1f76742> in <module>
-    ----> 1 template.model_build_sk(model_para='')
-          2 template.model_train_sk()
-          3 template.score_analyze()
+    WARNING:tensorflow:From c:\users\zfan2\anaconda3\envs\tf_gpu\lib\site-packages\tensorflow\python\ops\init_ops.py:1251: calling VarianceScaling.__init__ (from tensorflow.python.ops.init_ops) with dtype is deprecated and will be removed in a future version.
+    Instructions for updating:
+    Call initializer instance with the dtype argument instead of passing it to the constructor
+    WARNING:tensorflow:From c:\users\zfan2\anaconda3\envs\tf_gpu\lib\site-packages\tensorflow\python\ops\math_grad.py:1250: add_dispatch_support.<locals>.wrapper (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+    Instructions for updating:
+    Use tf.where in 2.0, which has the same broadcast rule as np.where
+    Epoch 1/10
+    5168/5168 [==============================] - 15s 3ms/sample - loss: 0.7158 - acc: 0.5064
+    Epoch 2/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6999 - acc: 0.51241s - loss: 0.6986 - 
+    Epoch 3/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.7002 - acc: 0.5155
+    Epoch 4/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6985 - acc: 0.50432s - loss: 0.6990 -
+    Epoch 5/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6955 - acc: 0.51929s - loss: 0.6 - 
+    Epoch 6/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6958 - acc: 0.5037
+    Epoch 7/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6956 - acc: 0.5130
+    Epoch 8/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6931 - acc: 0.5213
+    Epoch 9/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6934 - acc: 0.5193
+    Epoch 10/10
+    5168/5168 [==============================] - 14s 3ms/sample - loss: 0.6944 - acc: 0.51453s - loss
+    275/275 [==============================] - 1s 3ms/sample - loss: 0.6898 - acc: 0.5564
     
 
-    ~\Columbia University\Deep Learning Homework\stock_model.py in model_build_sk(self, model_para)
-        698 
-        699     def model_build_sk(self, model_para = ''):
-    --> 700         self.model = model_build_sk(self.model_name, task_type = self.task_type, model_para = model_para)
-        701 
-        702     def model_build_tf(self, number_layer = 3, width = 50, number_drop_out = 0.2, optimizer = 'adam'):
-    
-
-    ~\Columbia University\Deep Learning Homework\stock_model.py in model_build_sk(model_name_string, task_type, model_para)
-        214             model = eval('Ridge(' + model_para +')')
-        215 
-    --> 216     return model
-        217 
-        218 def model_build_mlp(x_train, task_type = 'classification', number_layer = 3, width = 50, number_drop_out = 0.2, optimizer = 'adam'):
-    
-
-    UnboundLocalError: local variable 'model' referenced before assignment
 
 
 
-```python
-template.score_plot_prediction()
-template.score_plot_return()
-```
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>model_name</th>
+      <th>accuracy</th>
+      <th>auc</th>
+      <th>realized_total_return</th>
+      <th>total_return</th>
+      <th>annual_return</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>dia</td>
+      <td>rnn</td>
+      <td>0.556364</td>
+      <td>0.482749</td>
+      <td>0.107051</td>
+      <td>0.109376</td>
+      <td>0.0997871</td>
+    </tr>
+  </tbody>
+</table>
+</div>
