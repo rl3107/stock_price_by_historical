@@ -9,6 +9,8 @@ I defined the prediction task type as classification or regression. Classificati
 
 This is version 1.0 and I may more functions or make it more generalized in the future. Now you can use the pre-defined parameters to handle the pipeline, and you can assign the models you are interested in to customize (e.g. template.model = sklearn.svm.SVC()), or you can use it to download and pre-process data, and get them by data_x, data_y = template.x_test_model, template.y_test_model.
 
+Disclaimer: Any trading decisions are based on your own discretion and risk.
+
 Have fun!
 
 Here's the contents in the stock_model_using_template.ipynb:
